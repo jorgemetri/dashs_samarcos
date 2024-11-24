@@ -19,7 +19,7 @@ zpm2 =  st.Page("zpm2/zpm2.py",title="ZPM2",icon=":material/dashboard:")
 
 pg = st.navigation(
     {
-        "DashBoards Analíticos":[tempotria,ci,jump,zpm2],
+        "DashBoards Analíticos":[tempotria,zpm2,jump],
         "DashBoards Preditivos":[backlog]
     }
 )
