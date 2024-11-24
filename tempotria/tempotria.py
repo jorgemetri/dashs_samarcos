@@ -70,7 +70,7 @@ def Grafico_Rotulado_Data(data, axisx, axisy, rotuloY, titulo):
     # Rótulos nos pontos
     labels = (
         alt.Chart(data.reset_index())
-        .mark_text(align='left', dx=5, dy=-5, fontSize=12,  color="black")
+        .mark_text(align='left', dx=5, dy=-5, fontSize=12,  color="#FFFFFF")
         .encode(
             x=alt.X(axisx, title=""),
             y=alt.Y(axisy, title=rotuloY),
@@ -310,15 +310,24 @@ def Secao3(data):
             rotuloY="Contagem de Ordens",
             titulo="Contagem de notas em Ordens",
         )
+
+
+
+
+
+
 def Metricas(data):
+    # Configuração das colunas
+    col1, col2, col3 = st.columns(3)
+    col1.metric(label="Idade Média", value=round(np.average(data["Idade_média"]), 2), delta=-10)
+    col2.metric(label="Conversão MSPN x MSPR", value=round(np.nanmean(data["MSPN_X_MSPR"]), 2), delta=-210)
+    col3.metric(label="Conversão NT x OM", value=round(np.nanmean(data["MSPR_x_ORDA"]), 2), delta=-210)
 
-    col1,col2,col3 = st.columns(3)
-    col1.metric(label="Idade Média",value=round(np.average(data["Idade_média"]),2),delta=-10)
-    col2.metric(label="Conversão MSPN x MSPR",value=round(np.nanmean(data["MSPN_X_MSPR"]),2),delta=-210)
-    col3.metric(label="Conversão NT x OM",value=round(np.nanmean(data["MSPR_x_ORDA"]),2),delta=-210)
+    # Aplicação de estilo
+    style_metric_cards(border_left_color="#005FB8",background_color="#262730",border_color="#005FB8")
 
-    style_metric_cards(border_left_color="#005FB8")
-
+   
+    
 
 def Filtro_Ano(data):
     # Criando uma coluna de ano
@@ -350,6 +359,12 @@ def Filtro_Ano(data):
 def Tabela(data):
     st.dataframe(data[["Nota","Texto","Status","Idade_média","MSPN_X_MSPR","Centro_de_Trabalho"]],hide_index=True)
 
+def Logo(url):
+    st.logo(
+        url,
+        link="https://streamlit.io/gallery",size="large"
+    )
+
 
 
 # Criando as abas com ícones nos nomes
@@ -371,6 +386,9 @@ with tab1:
     Secao2(data1)
     Secao3(data1)
     Tabela(data1)
+
+    LOGO_URL_LARGE=r"images\samarco.png"
+    Logo(LOGO_URL_LARGE)
 
 with tab2:
     st.write("📥 Baixar Dados")
