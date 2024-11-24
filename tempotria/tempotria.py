@@ -387,7 +387,7 @@ with tab1:
     Secao3(data1)
     Tabela(data1)
 
-    LOGO_URL_LARGE=r"images\samarco.png"
+    LOGO_URL_LARGE="images/samarco.png"
     Logo(LOGO_URL_LARGE)
 
 with tab2:
