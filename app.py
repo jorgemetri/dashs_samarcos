@@ -4,10 +4,10 @@ import numpy as np
 from datetime import date, timedelta
 import string
 import time
-
-
+#Definindo função para pegar dados
 
 #Definindo as pages
+
 
 backlog = st.Page("backlog_ordens/backlog.py",title="BackLog de Ordens",icon=":material/dashboard:") 
 tempotria = st.Page("tempotria/tempotria.py",title="Tempo de Triagem",icon=":material/dashboard:")
