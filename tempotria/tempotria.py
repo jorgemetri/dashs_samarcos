@@ -155,27 +155,34 @@ def Cartoes(data):
 
 
 def Filtros(data):
-    # Inicializando filtros na sessão
-    for filtro in ["filtro1", "filtro2", "filtro3"]:
-        if filtro not in st.session_state:
-            st.session_state[filtro] = None
+    # Inicializando os filtros no st.session_state com valores padrão
+    if "filtro1" not in st.session_state:
+        st.session_state["filtro1"] = "Selecione uma empresa"
+    if "filtro2" not in st.session_state:
+        st.session_state["filtro2"] = "Selecione uma disciplina"
+    if "filtro3" not in st.session_state:
+        st.session_state["filtro3"] = "Selecione um CT"
 
-    # Criando os filtros na barra lateral
+    # Criando os filtros na barra lateral com valor padrão selecionado
     st.sidebar.selectbox(
         "Empresa:",
         options=["Selecione uma empresa"] + list(data['Empresa'].unique()),
+        index=0,  # Define "Selecione uma empresa" como padrão
         key="filtro1",
     )
     st.sidebar.selectbox(
         "Disciplina:",
         options=["Selecione uma disciplina"] + list(data["Disciplina"].unique()),
+        index=0,  # Define "Selecione uma disciplina" como padrão
         key="filtro2",
     )
     st.sidebar.selectbox(
         "Centro de Trabalho:",
         options=["Selecione um CT"] + list(data["Centro_de_Trabalho"].unique()),
+        index=0,  # Define "Selecione um CT" como padrão
         key="filtro3",
     )
+
 
 
 def Secao1(data):
@@ -343,22 +350,31 @@ def Filtro_Ano(data):
 def Tabela(data):
     st.dataframe(data[["Nota","Texto","Status","Idade_média","MSPN_X_MSPR","Centro_de_Trabalho"]],hide_index=True)
 
-st.title("Tempo de triagem :chart_with_upwards_trend:")
-data = get_data()
-data1= load_data()
-col2,col3 = st.columns([3,1])
 
-Filtros(data1)
-# Selecionando colunas e filtrando os dados
-st.divider()
 
-Filtro_Ano(data1)
-Metricas(data1)
+# Criando as abas com ícones nos nomes
+tab1, tab2 = st.tabs(["📊 DashBoard: Triagem", "📥 Baixar dados"])
 
-Secao1(data1)
-Secao2(data1)
-Secao3(data1)
-Tabela(data1)
+with tab1:
+    st.title("Tempo de triagem :chart_with_upwards_trend:")
+    data = get_data()
+    data1 = load_data()
+    col2, col3 = st.columns([3, 1])
+
+    Filtros(data1)
+    st.divider()
+
+    Filtro_Ano(data1)
+    Metricas(data1)
+
+    Secao1(data1)
+    Secao2(data1)
+    Secao3(data1)
+    Tabela(data1)
+
+with tab2:
+    st.write("📥 Baixar Dados")
+
 
 
 
