@@ -4,6 +4,7 @@ import numpy as np
 from datetime import date, timedelta
 import string
 import altair as alt
+from streamlit_extras.metric_cards import style_metric_cards
 
 @st.cache_data
 def load_data():
@@ -32,7 +33,7 @@ def get_data():
 
 def Grafico_Rotulado_Data(data, axisx, axisy, rotuloY, titulo):
     """
-    Exibe um gráfico de área interativo com hover, pontos, e tooltips.
+    Exibe um gráfico de área interativo com hover, pontos, tooltips e rótulos.
 
     Parâmetros:
     - data: DataFrame com os dados a serem plotados.
@@ -62,9 +63,20 @@ def Grafico_Rotulado_Data(data, axisx, axisy, rotuloY, titulo):
             ],
         )
     )
-    #262739
+
     # Pontos para o hover
     points = area.transform_filter(hover).mark_circle(size=65)
+
+    # Rótulos nos pontos
+    labels = (
+        alt.Chart(data.reset_index())
+        .mark_text(align='left', dx=5, dy=-5, fontSize=12,  color="black")
+        .encode(
+            x=alt.X(axisx, title=""),
+            y=alt.Y(axisy, title=rotuloY),
+            text=alt.Text(axisy, format=".0f"),  # Formato dos valores exibidos
+        )
+    )
 
     # Regra de tooltips
     tooltips = (
@@ -83,8 +95,9 @@ def Grafico_Rotulado_Data(data, axisx, axisy, rotuloY, titulo):
     )
 
     # Combinação de camadas
-    data_layer = area + points + tooltips
+    data_layer = area + points + labels + tooltips
     st.altair_chart(data_layer, use_container_width=True)
+
 
 
 
@@ -142,25 +155,52 @@ def Cartoes(data):
 
 
 def Filtros(data):
-    st.sidebar.selectbox("Escolha o tipo de Produto:",data.columns,index =None,placeholder="Selecione um produto",key='side1')
-    st.sidebar.selectbox("Escolha o tipo de Produto:",data.columns,index =None,placeholder="Selecione um produto",key='side2')
-    st.sidebar.selectbox("Escolha o tipo de Produto:",data.columns,index =None,placeholder="Selecione um produto",key='side3')
+    # Inicializando filtros na sessão
+    for filtro in ["filtro1", "filtro2", "filtro3"]:
+        if filtro not in st.session_state:
+            st.session_state[filtro] = None
 
-st.header("Tempo de triagem")
-data = get_data()
-data1= load_data()
-col2,col3 = st.columns([3,1])
+    # Criando os filtros na barra lateral
+    st.sidebar.selectbox(
+        "Empresa:",
+        options=["Selecione uma empresa"] + list(data['Empresa'].unique()),
+        key="filtro1",
+    )
+    st.sidebar.selectbox(
+        "Disciplina:",
+        options=["Selecione uma disciplina"] + list(data["Disciplina"].unique()),
+        key="filtro2",
+    )
+    st.sidebar.selectbox(
+        "Centro de Trabalho:",
+        options=["Selecione um CT"] + list(data["Centro_de_Trabalho"].unique()),
+        key="filtro3",
+    )
 
-Filtros(data)
-# Selecionando colunas e filtrando os dados
 
 def Secao1(data):
     # Mantém uma cópia dos dados originais
     original_data = data.copy()
 
-    # Selecionando colunas e filtrando por 'Status' == 'MSPN'
-    data = data[['Status', 'MSPN']].copy()
-    data = data[data['Status'] == 'MSPN']
+    # Selecionando colunas relevantes
+    data = data[['Status', 'MSPN', 'Empresa', 'Disciplina', 'Centro_de_Trabalho']].copy()
+
+    # Verificar se todos os filtros estão no estado padrão ou nenhum foi selecionado
+    if (
+        (not st.session_state["filtro1"] or st.session_state["filtro1"] == "Selecione uma empresa") and
+        (not st.session_state["filtro2"] or st.session_state["filtro2"] == "Selecione uma disciplina") and
+        (not st.session_state["filtro3"] or st.session_state["filtro3"] == "Selecione um CT")
+    ):
+        # Aplicar filtro padrão
+        data = data[data["Status"] == "MSPN"]
+    else:
+        # Aplicar filtros específicos
+        if st.session_state["filtro1"] and st.session_state["filtro1"] != "Selecione uma empresa":
+            data = data[(data['Status'] == 'MSPN') & (data['Empresa'] == st.session_state["filtro1"])]
+        if st.session_state["filtro2"] and st.session_state["filtro2"] != "Selecione uma disciplina":
+            data = data[(data['Status'] == 'MSPN') & (data['Disciplina'] == st.session_state["filtro2"])]
+        if st.session_state["filtro3"] and st.session_state["filtro3"] != "Selecione um CT":
+            data = data[(data['Status'] == 'MSPN') & (data['Centro_de_Trabalho'] == st.session_state["filtro3"])]
 
     # Garantindo que 'MSPN' é datetime
     if not np.issubdtype(data['MSPN'].dtype, np.datetime64):
@@ -176,27 +216,17 @@ def Secao1(data):
     # Configurando índice para Mes_Ano
     data.set_index('Mes_Ano', inplace=True)
 
-    # Criando um container para as colunas
+    # Criando o gráfico
     with st.container(height=350):
-        col1, col2 = st.columns([3, 1])
+        Grafico_Rotulado_Data(
+            data=data.reset_index(),  # Reseta o índice para o gráfico
+            axisx="Mes_Ano",
+            axisy="Status",
+            rotuloY="",
+            titulo="Entrada de Notas MPSN",
+        )
 
-        # Plotando o gráfico na primeira coluna
-        with col1:
-            Grafico_Rotulado_Data(
-                data=data.reset_index(),  # Reseta o índice para o gráfico
-                axisx="Mes_Ano",
-                axisy="Status",
-                rotuloY="",
-                titulo="Entrada de Notas MPSN",
-            )
-
-        # Calculando e exibindo a métrica na segunda coluna
-        with col2:
-            if 'Idade_média' in original_data.columns:
-                mediaA = np.average(original_data['Idade_média'])
-                st.metric(label="Idade Média", value=round(mediaA, 2))
-            else:
-                st.warning("Coluna 'Idade média' não encontrada nos dados.")
+    
 def Secao2(data):
     # Mantém uma cópia dos dados originais
     original_data = data.copy()
@@ -219,26 +249,117 @@ def Secao2(data):
     data.set_index('Mes_Ano', inplace=True)
 
     # Criando um container para as colunas
-    with st.container(height=310):
-        col1, col2 = st.columns([3, 1])
-
-        # Plotando o gráfico na primeira coluna
-        with col1:
-            Grafico_Rotulado_Data(
+    with st.container(height=350):
+        Grafico_Rotulado_Data(
                 data=data.reset_index(),  # Reseta o índice para o gráfico
                 axisx="Mes_Ano",
                 axisy="Status",
                 rotuloY="",
                 titulo="Entrada de Notas MSPN x MSPR",
             )
+def Secao3(data):
+    # Mantém uma cópia dos dados originais
+    original_data = data.copy()
 
-        # Calculando e exibindo a métrica na segunda coluna
-        with col2:
-            st.metric(label="Conversão MPSPN x MSPR",value=round(np.nanmean(original_data['MSPN_X_MSPR']),2))
+    # Verificando os filtros aplicados no st.session_state
+    if (
+        (not st.session_state["filtro1"] or st.session_state["filtro1"] == "Selecione uma empresa") and
+        (not st.session_state["filtro2"] or st.session_state["filtro2"] == "Selecione uma disciplina") and
+        (not st.session_state["filtro3"] or st.session_state["filtro3"] == "Selecione um CT")
+    ):
+        # Nenhum filtro selecionado: utiliza os dados sem filtro
+        data = data[['ORDA']].copy()
+        data = data.dropna()
+    else:
+        # Aplicar filtros específicos
+        if st.session_state["filtro1"] and st.session_state["filtro1"] != "Selecione uma empresa":
+            data = data[data['Empresa'] == st.session_state["filtro1"]]
+        if st.session_state["filtro2"] and st.session_state["filtro2"] != "Selecione uma disciplina":
+            data = data[data['Disciplina'] == st.session_state["filtro2"]]
+        if st.session_state["filtro3"] and st.session_state["filtro3"] != "Selecione um CT":
+            data = data[data['Centro_de_Trabalho'] == st.session_state["filtro3"]]
 
+        # Filtrando apenas a coluna ORDA
+        data = data[['ORDA']].copy()
+        data = data.dropna()
+
+    # Garantindo que 'ORDA' é datetime
+    data['ORDA'] = pd.to_datetime(data['ORDA'], errors='coerce')
+
+    # Criando a coluna de mês/ano e agrupando
+    data["Mes_Ano"] = data["ORDA"].dt.to_period("M")
+    data = data.groupby("Mes_Ano")["ORDA"].count().reset_index()
+    data["Mes_Ano"] = data["Mes_Ano"].dt.to_timestamp()
+
+    # Configurando o índice para Mes_Ano
+    data.set_index("Mes_Ano", inplace=True)
+
+    # Criando o gráfico
+    with st.container(height=350):
+        Grafico_Rotulado_Data(
+            data=data.reset_index(),  # Reseta o índice para o gráfico
+            axisx="Mes_Ano",
+            axisy="ORDA",
+            rotuloY="Contagem de Ordens",
+            titulo="Contagem de notas em Ordens",
+        )
+def Metricas(data):
+
+    col1,col2,col3 = st.columns(3)
+    col1.metric(label="Idade Média",value=round(np.average(data["Idade_média"]),2),delta=-10)
+    col2.metric(label="Conversão MSPN x MSPR",value=round(np.nanmean(data["MSPN_X_MSPR"]),2),delta=-210)
+    col3.metric(label="Conversão NT x OM",value=round(np.nanmean(data["MSPR_x_ORDA"]),2),delta=-210)
+
+    style_metric_cards(border_left_color="#005FB8")
+
+
+def Filtro_Ano(data):
+    # Criando uma coluna de ano
+    data['Ano'] = data['Data_de_criação'].dt.year
+    lista_anos = list(data['Ano'].unique())
+
+    # CSS para aumentar o tamanho do texto "Ano"
+    st.markdown(
+        """
+        <style>
+        label[data-testid="stSelectboxLabel"] {
+            font-size: 20px; /* Altere o tamanho da fonte aqui */
+            font-weight: bold; /* Deixe o texto em negrito se desejar */
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # Criando o selectbox
+    option = st.selectbox(
+        "Ano",
+        lista_anos,
+        index=None,
+        placeholder="Selecione um ano...",
+    )
+
+    return option
+def Tabela(data):
+    st.dataframe(data[["Nota","Texto","Status","Idade_média","MSPN_X_MSPR","Centro_de_Trabalho"]],hide_index=True)
+
+st.title("Tempo de triagem :chart_with_upwards_trend:")
+data = get_data()
+data1= load_data()
+col2,col3 = st.columns([3,1])
+
+Filtros(data1)
+# Selecionando colunas e filtrando os dados
+st.divider()
+
+Filtro_Ano(data1)
+Metricas(data1)
 
 Secao1(data1)
 Secao2(data1)
+Secao3(data1)
+Tabela(data1)
+
 
 
 
