@@ -358,7 +358,7 @@ def Filtro_Ano(data):
     return option
 def Tabela(data):
     st.dataframe(data[["Nota","Texto","Status","Idade_média","MSPN_X_MSPR","Centro_de_Trabalho"]],hide_index=True)
-@st.cache_data
+
 def Logo(url):
     st.logo(
         url,
