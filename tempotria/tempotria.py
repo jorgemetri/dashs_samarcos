@@ -8,7 +8,7 @@ from streamlit_extras.metric_cards import style_metric_cards
 
 @st.cache_data
 def load_data():
-    tria = pd.read_excel("tempo_triagem_notas.xlsx")
+    tria = pd.read_excel("./tempo_triagem_notas.xlsx")
     return tria
 
 
