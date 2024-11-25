@@ -15,6 +15,14 @@ ci =  st.Page("ci/ci.py",title="Condições Inseguras",icon=":material/dashboard
 jump =  st.Page("jump/jump.py",title="Jump",icon=":material/dashboard:")
 zpm2 =  st.Page("zpm2/zpm2.py",title="ZPM2",icon=":material/dashboard:")
 
+def Logo(url):
+    st.logo(
+        url,
+        link="https://streamlit.io/gallery",size="large"
+    )
+
+LOGO_URL_LARGE="images/samarco.png"
+Logo(LOGO_URL_LARGE)
 
 
 pg = st.navigation(
