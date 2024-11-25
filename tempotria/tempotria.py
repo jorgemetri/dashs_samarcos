@@ -8,7 +8,7 @@ from streamlit_extras.metric_cards import style_metric_cards
 
 @st.cache_data
 def load_data():
-    tria = pd.read_excel("tempo_triagem_notas.xlsx")
+    tria = pd.read_excel("./tempo_triagem_notas.xlsx")
     return tria
 
 
@@ -359,12 +359,6 @@ def Filtro_Ano(data):
 def Tabela(data):
     st.dataframe(data[["Nota","Texto","Status","Idade_média","MSPN_X_MSPR","Centro_de_Trabalho"]],hide_index=True)
 
-def Logo(url):
-    st.logo(
-        url,
-        link="https://streamlit.io/gallery",size="large"
-    )
-
 
 
 # Criando as abas com ícones nos nomes
@@ -387,8 +381,7 @@ with tab1:
     Secao3(data1)
     Tabela(data1)
 
-    LOGO_URL_LARGE="images/samarco.png"
-    Logo(LOGO_URL_LARGE)
+
 
 with tab2:
     st.write("📥 Baixar Dados")
