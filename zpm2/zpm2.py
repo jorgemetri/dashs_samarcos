@@ -10,7 +10,7 @@ from streamlit_extras.metric_cards import style_metric_cards
 st.header("ZPM2")
 @st.cache_data
 def load_data():
-    dados = pd.read_excel(".\Ordens_zpm2zpm3.xlsx")
+    dados = pd.read_excel("./Ordens_zpm2zpm3.xlsx")
     return dados
 
 def Grafico_Rotulado_Barras(data, axisx, axisy, rotuloX, titulo):
@@ -208,8 +208,16 @@ def Metricas(data):
     # Configuração das colunas
     col1, col2 = st.columns(2)
 
-    col1.metric(label="%ZPM2", value=f"{round(len(data[data["Tipo"] == "ZPM2"]) / len(data)*100, 2)} %", delta=-10)
-    col2.metric(label="%ZPM3",  value=f"{round(len(data[data["Tipo"] == "ZPM3"]) / len(data)*100, 2)} %", delta=-210)
+    col1.metric(
+        label="%ZPM2", 
+        value=f'{round(len(data[data["Tipo"] == "ZPM2"]) / len(data) * 100, 2)} %', 
+        delta=-10
+    )
+    col2.metric(
+        label="%ZPM3",  
+        value=f'{round(len(data[data["Tipo"] == "ZPM3"]) / len(data) * 100, 2)} %', 
+        delta=-210
+    )
 
     # Aplicação de estilo
     style_metric_cards(border_left_color="#005FB8", background_color="#262730", border_color="#005FB8")
