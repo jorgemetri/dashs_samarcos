@@ -418,7 +418,7 @@ def Filtros(data):
     if "filtro2" not in st.session_state:
         st.session_state["filtro2"] = "Selecione uma disciplina"
     if "filtro3" not in st.session_state:
-        st.session_state["filtro3"] = "Selecione uma CT"
+        st.session_state["filtro3"] = "Selecione um CT"
 
     # Criando os filtros na barra lateral com valor padrão selecionado
     st.sidebar.selectbox(
