@@ -14,6 +14,7 @@ tempotria = st.Page("tempotria/tempotria.py",title="Tempo de Triagem",icon=":mat
 ci =  st.Page("ci/ci.py",title="Condições Inseguras",icon=":material/dashboard:")
 jump =  st.Page("jump/jump.py",title="Jump",icon=":material/dashboard:")
 zpm2 =  st.Page("zpm2/zpm2.py",title="ZPM2",icon=":material/dashboard:")
+cv = st.Page("computervision/cv.py",title="Computer-Vision-PPCM",icon=":material/camera:")
 
 def Logo(url):
     st.logo(
@@ -28,7 +29,8 @@ Logo(LOGO_URL_LARGE)
 pg = st.navigation(
     {
         "DashBoards Analíticos":[tempotria,zpm2,jump],
-        "DashBoards Preditivos":[backlog]
+        "DashBoards Preditivos":[backlog],
+        "Computer-Vision":[cv]
     }
 )
 pg.run()
