@@ -446,21 +446,23 @@ with tab1:
         
 
 
-        # Link do vídeo do YouTube Shorts
+    # Link do vídeo do YouTube Shorts
     youtube_link = "https://youtube.com/shorts/y4ydZ6BJsm0?feature=share"
 
     # Substituir o link para formato embed do YouTube
     embed_link = youtube_link.replace("youtube.com/shorts/", "youtube.com/embed/").split("?")[0]
 
-    # Criar o iframe para o vídeo
+    # Criar o iframe para o vídeo com largura responsiva
     video_html = f"""
-        <iframe width="700" height="400" 
+        <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; background: #000;">
+            <iframe 
                 src="{embed_link}" 
-                title="YouTube video player" 
+                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
                 frameborder="0" 
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                 allowfullscreen>
-        </iframe>
+            </iframe>
+        </div>
     """
 
     # Exibir o player de vídeo
