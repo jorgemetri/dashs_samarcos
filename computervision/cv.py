@@ -346,9 +346,14 @@ def Secao3(data):
 def Metricas(data):
     # Configuração das colunas
     col1, col2, col3 = st.columns(3)
-    col1.metric(label="MSE", value="1200", delta=10)
-    col2.metric(label="Coeficiente R2", value="80,56 %", delta=0.4)
-    col3.metric(label="MAP", value="100", delta=16)
+     # metrics/mAP50-95(B),metrics/mAP50(B),metrics/precision(B)
+    x = np.average(data["metrics/mAP50-95(B)"])*100
+    in1 = f"{x}%"
+    in2 =  np.average(data["metrics/mAP50(B)"])*100
+    in3 = np.average(data["metrics/precision(B)"])*100
+    col1.metric(label="metrics/mAP50-95(B", value=f"{x:.2f} %", delta=0.2)
+    col2.metric(label="metrics/mAP50(B)", value=f"{in2:.2f} %", delta=0.3)
+    col3.metric(label="metrics/precision(B)", value=f"{in3:.2f} %", delta=2)
 
     # Aplicação de estilo
     style_metric_cards(border_left_color="#005FB8",background_color="#262730",border_color="#005FB8")
@@ -385,8 +390,10 @@ def Filtro_Ano(data):
     return option
 def Tabela(data):
     st.dataframe(data[["Nota","Texto","Status","Idade_média","MSPN_X_MSPR","Centro_de_Trabalho"]],hide_index=True)
-
-
+@st.cache_data
+def carregadados():
+    tria = pd.read_csv("./results.csv")
+    return tria
 
 # Criando as abas com ícones nos nomes
 tab1, tab2 = st.tabs(["📊 DashBoard: Computer-Vision PPCM", "📥 Baixar dados"])
@@ -394,7 +401,8 @@ tab1, tab2 = st.tabs(["📊 DashBoard: Computer-Vision PPCM", "📥 Baixar dados
 with tab1:
     st.title("Computer Vision PPCM :material/camera:")
     df = load_data()
-    Metricas(df)
+    dados= carregadados()
+    Metricas(dados)
     
 
     df.set_index('X', inplace=True)  # Colocando a coluna X como index
@@ -410,49 +418,40 @@ with tab1:
     df_y_pred.set_index('X', inplace=True)
 
     with st.container(height=350):
+        # metrics/mAP50-95(B),metrics/mAP50(B),metrics/precision(B)
         Grafico_Rotulado_Data(
-                data=df_y_train.reset_index(),  # Reseta o índice para o gráfico
-                axisx="X",
-                axisy="y_train",
+                data=dados.reset_index(),  # Reseta o índice para o gráfico
+                axisx="epoch",
+                axisy="metrics/precision(B)",
                 rotuloY="",
-                titulo="HH Real",
+                titulo="metrics/precision(B)",
             )
     with st.container(height=350):
         Grafico_Rotulado_Data(
-                data=df_y_pred.reset_index(),  # Reseta o índice para o gráfico
-                axisx="X",
-                axisy="y_pred",
+                data=dados.reset_index(),  # Reseta o índice para o gráfico
+                axisx="epoch",
+                axisy="metrics/mAP50(B)",
                 rotuloY="",
-                titulo="HH Previsto",
+                titulo="metrics/mAP50(B)",
             )
         
-    
-
     with st.container(height=350):
-        # Criação de um novo DataFrame combinado para o gráfico
-        df_combined = pd.DataFrame({
-        "X": df_y_train.reset_index()["X"],  # Usando as datas de df_y_train como referência para o eixo X
-        "HH Real": df_y_train["y_train"].values,  # Valores de y_train
-        "HH Previsto": df_y_pred["y_pred"].values  # Valores de y_pred
-          })
+        Grafico_Rotulado_Data(
+                data=dados.reset_index(),  # Reseta o índice para o gráfico
+                axisx="epoch",
+                axisy="metrics/mAP50-95(B)",
+                rotuloY="",
+                titulo="metrics/mAP50-95(B)",
+            )
+        
 
-        # Transforma os dados em formato longo para múltiplas séries (se necessário pelo gráfico)
-        df_long = df_combined.melt(id_vars="X", var_name="Tipo", value_name="Valor")
+   
 
-        Grafico_Rotulado_Data_Dual(
-            data=df_combined,  # DataFrame com colunas para X, y_train e y_pred
-            axisx="X",
-            axisy1="HH Real",  # Primeiro eixo Y
-            axisy2="HH Previsto",  # Segundo eixo Y
-            rotuloY1="HH Real",
-            rotuloY2="HH Previsto",
-            titulo="Sobreposição: HH Real e HH Previsto"
-        )
-
-    video_file = open("/workspaces/dashs_samarcos/video.mp4", "rb")
+    video_file = open("/workspaces/dashs_samarcos/samarco.mp4", "rb")
     video_bytes = video_file.read()
 
     st.video(video_bytes)
+    st.dataframe(carregadados())
 
  
 
