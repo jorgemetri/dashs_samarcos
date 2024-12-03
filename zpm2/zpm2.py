@@ -485,7 +485,7 @@ with tab1:
     Secao2(data)
     Secao3(data)
     #st.write(data.columns)
-    st.dataframe(data[["Ordem","Tipo","Texto_da_Ordem","Empresa","CT","Data_de_Encerramento","Disciplina"]],hide_index=True)
+    st.dataframe(data[["Ordem","Tipo","Texto_da_Ordem","Empresa","CT","Data_de_Encerramento","Disciplina"]],hide_index=True,use_container_width=True)
     #Tabela(data1)
 
 
