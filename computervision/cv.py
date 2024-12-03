@@ -445,12 +445,28 @@ with tab1:
             )
         
 
-   
 
-    video_file = open("./samarco.mp4", "rb")
-    video_bytes = video_file.read()
+        # Link do vídeo do YouTube Shorts
+    youtube_link = "https://youtube.com/shorts/y4ydZ6BJsm0?feature=share"
 
-    st.video(video_bytes)
+    # Substituir o link para formato embed do YouTube
+    embed_link = youtube_link.replace("youtube.com/shorts/", "youtube.com/embed/").split("?")[0]
+
+    # Criar o iframe para o vídeo
+    video_html = f"""
+        <iframe width="700" height="400" 
+                src="{embed_link}" 
+                title="YouTube video player" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen>
+        </iframe>
+    """
+
+    # Exibir o player de vídeo
+    st.markdown(video_html, unsafe_allow_html=True)
+
+
     st.dataframe(carregadados(), use_container_width=True)
 
 
