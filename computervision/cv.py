@@ -451,7 +451,8 @@ with tab1:
     video_bytes = video_file.read()
 
     st.video(video_bytes)
-    st.dataframe(carregadados())
+    st.dataframe(carregadados(), use_container_width=True)
+
 
  
 

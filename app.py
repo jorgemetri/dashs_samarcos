@@ -8,7 +8,7 @@ import time
 
 #Definindo as pages
 
-
+st.set_page_config(layout="wide")
 backlog = st.Page("backlog_ordens/backlog.py",title="BackLog de Ordens",icon=":material/dashboard:") 
 tempotria = st.Page("tempotria/tempotria.py",title="Tempo de Triagem",icon=":material/dashboard:")
 ci =  st.Page("ci/ci.py",title="Condições Inseguras",icon=":material/dashboard:")
