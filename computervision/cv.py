@@ -447,7 +447,7 @@ with tab1:
 
    
 
-    video_file = open("/workspaces/dashs_samarcos/samarco.mp4", "rb")
+    video_file = open("./samarco.mp4", "rb")
     video_bytes = video_file.read()
 
     st.video(video_bytes)
