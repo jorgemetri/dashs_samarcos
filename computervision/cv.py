@@ -400,22 +400,10 @@ tab1, tab2 = st.tabs(["📊 DashBoard: Computer-Vision PPCM", "📥 Baixar dados
 
 with tab1:
     st.title("Computer Vision PPCM :material/camera:")
-    df = load_data()
+ 
     dados= carregadados()
     Metricas(dados)
-    
-
-    df.set_index('X', inplace=True)  # Colocando a coluna X como index
-
-    # Agrupar por mês para y_train
-    df_y_train = df['y_train'].groupby(df.index.to_period('M')).sum().reset_index()
-    df_y_train['X'] = df_y_train['X'].dt.to_timestamp()
-    df_y_train.set_index('X', inplace=True)
-
-    # Agrupar por mês para y_pred
-    df_y_pred = df['y_pred'].groupby(df.index.to_period('M')).sum().reset_index()
-    df_y_pred['X'] = df_y_pred['X'].dt.to_timestamp()
-    df_y_pred.set_index('X', inplace=True)
+  
 
     with st.container(height=350):
         # metrics/mAP50-95(B),metrics/mAP50(B),metrics/precision(B)
@@ -468,8 +456,27 @@ with tab1:
     # Exibir o player de vídeo
     st.markdown(video_html, unsafe_allow_html=True)
 
+    yt= "https://youtube.com/shorts/FYPmLiXfQmg?feature=share"
 
+    embed_link = yt.replace("youtube.com/shorts/", "youtube.com/embed/").split("?")[0]
+
+    # Criar o iframe para o vídeo com largura responsiva
+    video_html = f"""
+        <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; background: #000;">
+            <iframe 
+                src="{embed_link}" 
+                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen>
+            </iframe>
+        </div>
+    """
+
+    # Exibir o player de vídeo
+    st.markdown(video_html, unsafe_allow_html=True)
     st.dataframe(carregadados(), use_container_width=True)
+
 
 
  

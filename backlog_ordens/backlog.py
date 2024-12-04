@@ -346,9 +346,9 @@ def Secao3(data):
 def Metricas(data):
     # Configuração das colunas
     col1, col2, col3 = st.columns(3)
-    col1.metric(label="MSE", value="1200", delta=10)
-    col2.metric(label="Coeficiente R2", value="80,56 %", delta=0.4)
-    col3.metric(label="MAP", value="100", delta=16)
+    col1.metric(label="MSE", value="21,2352", delta=-10)
+    col2.metric(label="Coeficiente R2", value="70,91 %", delta=0.4)
+    col3.metric(label="MAP", value="60", delta=-16)
 
     # Aplicação de estilo
     style_metric_cards(border_left_color="#005FB8",background_color="#262730",border_color="#005FB8")
@@ -385,71 +385,81 @@ def Filtro_Ano(data):
     return option
 def Tabela(data):
     st.dataframe(data[["Nota","Texto","Status","Idade_média","MSPN_X_MSPR","Centro_de_Trabalho"]],hide_index=True)
-
-
+@st.cache_data
+def Previsao():
+    data = pd.read_excel("BacklogHH.xlsx")
+    return data
 
 # Criando as abas com ícones nos nomes
 tab1, tab2 = st.tabs(["📊 DashBoard: BackLog HH", "📥 Baixar dados"])
 
 with tab1:
     st.title("Previsão Backlog HH :chart_with_upwards_trend:")
-    df = load_data()
-    Metricas(df)
+    #df = load_data()
+   
+    prev = Previsao()
+    Metricas(prev)
+    prev["Data-base_iníc"] = pd.to_datetime(prev["Data-base_iníc"],errors="coerce")
+    
+    prev.set_index("Data-base_iníc",inplace=True)
+    y_pred =  prev['y_pred_original'].groupby(prev.index.to_period('M')).sum().reset_index()
+    y_pred['Data-base_iníc'] = y_pred['Data-base_iníc'].dt.to_timestamp()
+
+    
+    y =  prev['y'].groupby(prev.index.to_period('M')).sum().reset_index()
+    y['Data-base_iníc'] = y['Data-base_iníc'].dt.to_timestamp()
+
     
 
-    df.set_index('X', inplace=True)  # Colocando a coluna X como index
+   # df.set_index('X', inplace=True)  # Colocando a coluna X como index
+   
 
     # Agrupar por mês para y_train
-    df_y_train = df['y_train'].groupby(df.index.to_period('M')).sum().reset_index()
-    df_y_train['X'] = df_y_train['X'].dt.to_timestamp()
-    df_y_train.set_index('X', inplace=True)
+   # df_y_train = df['y_train'].groupby(df.index.to_period('M')).sum().reset_index()
+    #df_y_train['X'] = df_y_train['X'].dt.to_timestamp()
+   # df_y_train.set_index('X', inplace=True)
 
     # Agrupar por mês para y_pred
-    df_y_pred = df['y_pred'].groupby(df.index.to_period('M')).sum().reset_index()
-    df_y_pred['X'] = df_y_pred['X'].dt.to_timestamp()
-    df_y_pred.set_index('X', inplace=True)
+   # df_y_pred = df['y_pred'].groupby(df.index.to_period('M')).sum().reset_index()
+   # df_y_pred['X'] = df_y_pred['X'].dt.to_timestamp()
+   # df_y_pred.set_index('X', inplace=True)
 
     with st.container(height=350):
         Grafico_Rotulado_Data(
-                data=df_y_train.reset_index(),  # Reseta o índice para o gráfico
-                axisx="X",
-                axisy="y_train",
+                data=y_pred.reset_index(),  # Reseta o índice para o gráfico
+                axisx="Data-base_iníc",
+                axisy="y_pred_original",
                 rotuloY="",
-                titulo="HH Real",
-            )
-    with st.container(height=350):
-        Grafico_Rotulado_Data(
-                data=df_y_pred.reset_index(),  # Reseta o índice para o gráfico
-                axisx="X",
-                axisy="y_pred",
-                rotuloY="",
-                titulo="HH Previsto",
+                titulo="Previsão",
             )
         
-    
-
     with st.container(height=350):
-        # Criação de um novo DataFrame combinado para o gráfico
+        Grafico_Rotulado_Data(
+                data=y.reset_index(),  # Reseta o índice para o gráfico
+                axisx="Data-base_iníc",
+                axisy="y",
+                rotuloY="",
+                titulo="Valor real HH",
+            )
+    with st.container(height=350):
         df_combined = pd.DataFrame({
-        "X": df_y_train.reset_index()["X"],  # Usando as datas de df_y_train como referência para o eixo X
-        "HH Real": df_y_train["y_train"].values,  # Valores de y_train
-        "HH Previsto": df_y_pred["y_pred"].values  # Valores de y_pred
+        "Data-base_iníc": y_pred.reset_index()["Data-base_iníc"],  # Usando as datas de df_y_train como referência para o eixo X
+        "HH Real": y["y"].values,  # Valores de y_train
+        "HH Previsto": y_pred["y_pred_original"].values  # Valores de y_pred
           })
-
-        # Transforma os dados em formato longo para múltiplas séries (se necessário pelo gráfico)
-        df_long = df_combined.melt(id_vars="X", var_name="Tipo", value_name="Valor")
-
+        df_long = df_combined.melt(id_vars="Data-base_iníc", var_name="Tipo", value_name="Valor")
         Grafico_Rotulado_Data_Dual(
             data=df_combined,  # DataFrame com colunas para X, y_train e y_pred
-            axisx="X",
+            axisx="Data-base_iníc",
             axisy1="HH Real",  # Primeiro eixo Y
             axisy2="HH Previsto",  # Segundo eixo Y
             rotuloY1="HH Real",
             rotuloY2="HH Previsto",
             titulo="Sobreposição: HH Real e HH Previsto"
         )
-
-
+    
+    st.dataframe(Previsao(),hide_index=True,use_container_width=True)
+ 
 
  
 
